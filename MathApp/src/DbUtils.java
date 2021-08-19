@@ -33,6 +33,7 @@ public class DbUtils
 	 *          as an argument in the constructor method of JTable
 	 *          to construct a JTable to display the data.
 	 */
+	//git version
      public static TableModel resultSetToTableModel(ResultSet rs)
      {
          try {
