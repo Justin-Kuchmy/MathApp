@@ -24,7 +24,7 @@ import javax.swing.JOptionPane;
 
 public class MathAppController extends JFrame
 {
-	//git version
+	//deleted other branch
 	private static final long serialVersionUID = 1L;
 	private JLabel ProblemText, InputQuestions;
 	private TextField answerHere, numOfQs;
