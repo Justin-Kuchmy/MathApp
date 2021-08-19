@@ -15,7 +15,7 @@ import javax.swing.table.TableModel;
 
 public class MathAppView  extends JFrame
 {
-
+	//git version
 	private static final long serialVersionUID = 1L;
 	public JTable table;
 	public MathAppView(TableModel model)
