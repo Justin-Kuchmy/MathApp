@@ -38,7 +38,16 @@ public class MathAppController extends JFrame
 	private MathAppView view;
 	private int difficulty = 0;
 	private String[] options = new String[] { "Easy", "Medium", "Hard", "Mixed" };
-
+	private static final String CREATE_DATABASE_SQL = "CREATE DATABASE IF NOT EXISTS mathapp";
+	private static final String CREATE_TABLE_SQL_1 =  "Create table IF NOT EXISTS EasyRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float);";
+	private static final String CREATE_TABLE_SQL_2 =  "create table IF NOT EXISTS MediumRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float); ";
+	private static final String CREATE_TABLE_SQL_3 =  "create table IF NOT EXISTS HardRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float); ";
+	private static final String CREATE_TABLE_SQL_4 =  "create table IF NOT EXISTS MixedRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float);";
+	private String dbURL = "jdbc:mySql://localhost:3306/mathapp?useSSL=false&allowPublicKeyRetrieval=true";
+	private String dbURL2 = "jdbc:mySql://localhost:3306/";
+	
+	private String username = "root";
+	private String password = "password";
 	public MathAppController()
 	{
 		super("Justins Math App");
@@ -278,16 +287,25 @@ public class MathAppController extends JFrame
 				if (e.getActionCommand().equals("Submit Time"))
 				{
 
-					System.out.println("Submitted to the database");
+					
 					Connection myConn = null;
 					Statement myStmt = null;
 					PreparedStatement myPrepStmt = null;
 					try
 					{
-						myConn = DriverManager.getConnection(
-								"jdbc:mySql://localhost:3306/mathapp?useSSL=false&allowPublicKeyRetrieval=true", "root",
-								"password");
+						//mathapp?useSSL=false&allowPublicKeyRetrieval=true
+						myConn = DriverManager.getConnection(dbURL2, username,password);
 						myStmt = myConn.createStatement();
+						myStmt.executeUpdate(CREATE_DATABASE_SQL);
+						myConn.close();
+						myStmt.close();
+						myConn = DriverManager.getConnection(dbURL, username,password);
+						myStmt = myConn.createStatement();
+						myStmt.executeUpdate(CREATE_TABLE_SQL_1);
+						myStmt.executeUpdate(CREATE_TABLE_SQL_2);
+						myStmt.executeUpdate(CREATE_TABLE_SQL_3);
+						myStmt.executeUpdate(CREATE_TABLE_SQL_4);
+						
 						myPrepStmt = myConn.prepareStatement(
 								"INSERT INTO "+options[difficulty]+"Records(TimeTaken, DateSubmitted, Questions, avgTimePerQ)"
 										+ "VALUES( ? , now(), ? , ? );");
@@ -297,6 +315,7 @@ public class MathAppController extends JFrame
 						myPrepStmt.setString(3, String.valueOf(elapsedSeconds / Questions));
 
 						myPrepStmt.executeUpdate();
+						System.out.println("Submitted to the database");
 
 					} catch (SQLException e1)
 					{
@@ -321,6 +340,7 @@ public class MathAppController extends JFrame
 						} // catch
 
 					} // try
+					
 				} // Submit time
 				if (e.getActionCommand().equals("Reset"))
 				{
@@ -360,11 +380,8 @@ public class MathAppController extends JFrame
 				PreparedStatement myPrepStmt = null;
 				try
 				{
-					myConn = DriverManager.getConnection(
-							"jdbc:mySql://localhost:3306/mathapp?useSSL=false&allowPublicKeyRetrieval=true", "root",
-							"password");
+					myConn = DriverManager.getConnection(dbURL, username,password);
 					myStmt = myConn.createStatement();
-					
 					myPrepStmt = myConn.prepareStatement("select * from "+options[difficulty]+"Records order by 4, 2, 5;");
 					myRslt = myPrepStmt.executeQuery();
 
