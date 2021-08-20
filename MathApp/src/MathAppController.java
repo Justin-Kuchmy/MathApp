@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Toolkit;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,33 +20,37 @@ import javax.swing.table.TableModel;
 import javax.swing.JOptionPane;
 
 /**
- * Program Name: MathAppController.java Purpose: put something useful here
+ * Program Name: MathAppController.java 
+ * Purpose: Used to practice more difficult math problems in my head. 
  * Coder: Justin Kuchmy Date: Aug. 17, 2021
  */
 
 public class MathAppController extends JFrame
 {
 	private static final long serialVersionUID = 1L;
-	private JLabel ProblemText, InputQuestions;
-	private TextField answerHere, numOfQs;
-	private JPanel Input1, Input2;
-	private Button next, submit, records, startBtn, reset;
-	private int pblmNum = 0;
-	private int Questions = 0;
-	private int num1 = 0, num2 = 0;
-	public long start;
-	public double elapsedSeconds;
-	private MathAppView view;
-	private int difficulty = 0;
+	private JLabel ProblemText, InputQuestions;					
+	private TextField answerHere, numOfQs;						
+	private JPanel Input1, Input2;								
+	private Button next, submit, records, startBtn, reset;		 
+	private int pblmNum = 0;									// keeps track of current question
+	private int Questions = 0;									// number of questions entered
+	private int num1 = 0, num2 = 0;								// holds the 2 random numbers
+	private long start;    										// Start Time		
+	private double elapsedSeconds;								// End time, Result				
+	private MathAppView view;	 								// Displays Database
+	private int difficulty = 0; 								// 0, 1, 2 or 3 for Easy, medium, hard, mixed
+	
+	// Array of Options
 	private String[] options = new String[] { "Easy", "Medium", "Hard", "Mixed" };
+	
+	// Datanbase Generation Scripts.
 	private static final String CREATE_DATABASE_SQL = "CREATE DATABASE IF NOT EXISTS mathapp";
 	private static final String CREATE_TABLE_SQL_1 =  "Create table IF NOT EXISTS EasyRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float);";
 	private static final String CREATE_TABLE_SQL_2 =  "create table IF NOT EXISTS MediumRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float); ";
 	private static final String CREATE_TABLE_SQL_3 =  "create table IF NOT EXISTS HardRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float); ";
 	private static final String CREATE_TABLE_SQL_4 =  "create table IF NOT EXISTS MixedRecords(id int primary key auto_increment, TimeTaken TIME, DateSubmitted DateTime, Questions int, avgTimePerQ float);";
 	private String dbURL = "jdbc:mySql://localhost:3306/mathapp?useSSL=false&allowPublicKeyRetrieval=true";
-	private String dbURL2 = "jdbc:mySql://localhost:3306/";
-	
+	private String dbURL2 = "jdbc:mySql://localhost:3306/";	
 	private String username = "root";
 	private String password = "password";
 	public MathAppController()
@@ -53,7 +58,10 @@ public class MathAppController extends JFrame
 		super("Justins Math App");
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(400, 200);
+		Toolkit tk = Toolkit.getDefaultToolkit();  
+		float xSize = ((int) tk.getScreenSize().getWidth()*0.2f);  
+		float ySize = ((int) tk.getScreenSize().getHeight()*0.2f);  
+		this.setSize((int)xSize, (int)ySize);
 		this.setLocationRelativeTo(null);
 		this.setLayout(new GridLayout(7, 1));
 
@@ -111,17 +119,23 @@ public class MathAppController extends JFrame
 
 	}
 
+	/*Name: choiceMethod
+	 *Purpose: After Launching the app, The user selects a difficulty to determine the math question difficulty. 
+	 *Accepts: void
+	 *Returns: void
+	 */
 	public void choiceMethod()
 	{
-		difficulty = JOptionPane.showOptionDialog(null, "Message", "Title", JOptionPane.DEFAULT_OPTION,
+		difficulty = JOptionPane.showOptionDialog(null, "Select a Difficulty", "Difficulty Selector", JOptionPane.DEFAULT_OPTION,
 				JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
-		// JOptionPane.showOptionDialog(frame, "Select a Difficulty", "Select an
-		// Option",
-		// JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-		// Options.get("Easy"));
+		
 	}
-
+	/*Name:  calcTime
+	 *Purpose: Calculates the time in seconds between when the user clicks start and submit time, at the end. 
+	 *Accepts: Double Seconds
+	 *Returns: String
+	 */
 	public String calcTime(double seconds)
 	{
 		double temp = seconds;
@@ -131,14 +145,18 @@ public class MathAppController extends JFrame
 		String result = String.format("%02d:%02d:%02d", hour, min, second);
 		return result;
 	}
-
+	/*Name: randomNums
+	 *Purpose: Based on the difficulty picked, numbers between 10 and 1000 are randomly selected as math problems. 
+	 *Accepts: String 
+	 *Returns: void
+	 */
 	public void randomNums(String dif)
 	{
 		int min1 = 0, max1, min2 = 0, max2;
 		int range1 = 0, range2 = 0;
 		double test1 = 0.0;
 		double test2 = 0.0;
-		boolean rand = false;
+		boolean mix = false;
 		switch (dif) {
 		case "Easy":
 			min1 = 10;
@@ -171,15 +189,17 @@ public class MathAppController extends JFrame
 			max2 = 1000;
 			range1 = max1 - min1 + 1;
 			range2 = max2 - min2 + 1;
-			rand = true;
+			mix = true;
 			break;
 		}
 		double result1;
 		double result2;
-		if (rand)
+		if (mix) //if user selected mix
 		{
+			//Used to create a 50% change to get a 2 digit number vs a 3 digit number. 
+			//normally you would have a 2 digit number 10% of the time. 
 			Random r = new Random();
-			result1 = (r.nextInt(2) + 1);
+			result1 = (r.nextInt(2) + 1); //randomly picks a 1 or a 2 
 			if (result1 < 0)
 				result1 *= -1;
 			if ((int) result1 == 1)
@@ -209,7 +229,7 @@ public class MathAppController extends JFrame
 		num1 = (int) (test1);
 		num2 = (int) (test2);
 		pblmNum++;
-		ProblemText.setText("Question " + pblmNum + ": " + num1 + " x " + num2);
+		ProblemText.setText("Question " + pblmNum + ": " + num1 + " x " + num2); //display the question on the screen.
 		
 	}
 
@@ -294,12 +314,12 @@ public class MathAppController extends JFrame
 					try
 					{
 						//mathapp?useSSL=false&allowPublicKeyRetrieval=true
-						myConn = DriverManager.getConnection(dbURL2, username,password);
+						myConn = DriverManager.getConnection(dbURL2, username,password); // has the url without the databse info
 						myStmt = myConn.createStatement();
-						myStmt.executeUpdate(CREATE_DATABASE_SQL);
-						myConn.close();
+						myStmt.executeUpdate(CREATE_DATABASE_SQL); //create the database
 						myStmt.close();
-						myConn = DriverManager.getConnection(dbURL, username,password);
+						myConn.close();
+						myConn = DriverManager.getConnection(dbURL, username,password); //included data with the new db name
 						myStmt = myConn.createStatement();
 						myStmt.executeUpdate(CREATE_TABLE_SQL_1);
 						myStmt.executeUpdate(CREATE_TABLE_SQL_2);
@@ -354,9 +374,9 @@ public class MathAppController extends JFrame
 					next.setLabel("Next");
 					Questions = 0;
 					pblmNum = 0;
-					choiceMethod();
-					view.updateViewDif(options[difficulty]);
-					
+					choiceMethod(); //Select a new difficulty. 
+					view.updateViewDif(options[difficulty]); //	change the View window "title" to match the new 
+															//selected difficulty. 
 					numOfQs.requestFocus();
 
 				}
