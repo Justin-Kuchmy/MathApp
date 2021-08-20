@@ -55,7 +55,7 @@ public class MathAppController extends JFrame
 	private String password = "password";
 	public MathAppController()
 	{
-		super("Justins Math App");
+		super("In Your Head Math");
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Toolkit tk = Toolkit.getDefaultToolkit();  
