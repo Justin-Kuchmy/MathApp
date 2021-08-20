@@ -375,8 +375,13 @@ public class MathAppController extends JFrame
 					Questions = 0;
 					pblmNum = 0;
 					choiceMethod(); //Select a new difficulty. 
-					view.updateViewDif(options[difficulty]); //	change the View window "title" to match the new 
-															//selected difficulty. 
+					
+					//	change the View window "title" to match the new selected difficulty. 
+					if(view != null ) 
+					{
+						view.updateViewDif(options[difficulty]);
+					}
+																				
 					numOfQs.requestFocus();
 
 				}
