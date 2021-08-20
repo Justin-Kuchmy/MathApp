@@ -15,12 +15,14 @@ import javax.swing.table.TableModel;
 
 public class MathAppView  extends JFrame
 {
-	//git version
+
 	private static final long serialVersionUID = 1L;
 	public JTable table;
-	public MathAppView(TableModel model)
+	public static String _dif = "";
+	public MathAppView(TableModel model, String dif)
 	{
-		super("Current Records");
+		
+		super("Current "+dif+" Records");
 		 
 		 //boiler plate
 		 this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,9 +41,14 @@ public class MathAppView  extends JFrame
 		 JScrollPane scrollPane = new JScrollPane(table);
 		 this.add(scrollPane);
 	}
-	
+	public void updateViewDif(String dif)
+	{
+		_dif = dif;
+	}
 	 public void updateTable(TableModel model)
 	 {
+
+		 this.setTitle("Current "+_dif+" Records");
 		 this.table.setModel(model);
 	 }
 
