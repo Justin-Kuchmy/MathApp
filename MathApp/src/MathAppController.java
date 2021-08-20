@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,7 +25,6 @@ import javax.swing.JOptionPane;
 
 public class MathAppController extends JFrame
 {
-	//deleted other branch
 	private static final long serialVersionUID = 1L;
 	private JLabel ProblemText, InputQuestions;
 	private TextField answerHere, numOfQs;
@@ -36,6 +36,8 @@ public class MathAppController extends JFrame
 	public long start;
 	public double elapsedSeconds;
 	private MathAppView view;
+	private int difficulty = 0;
+	private String[] options = new String[] { "Easy", "Medium", "Hard", "Mixed" };
 
 	public MathAppController()
 	{
@@ -70,9 +72,8 @@ public class MathAppController extends JFrame
 
 		startBtn = new Button("Start");
 		records = new Button("View Records");
-		
+
 		reset = new Button("Reset");
-	
 
 		// add components
 		Input1.add(InputQuestions);
@@ -97,6 +98,19 @@ public class MathAppController extends JFrame
 		GetRecord Records = new GetRecord();
 		records.addActionListener(Records);
 		this.setVisible(true);
+		choiceMethod();
+
+	}
+
+	public void choiceMethod()
+	{
+		difficulty = JOptionPane.showOptionDialog(null, "Message", "Title", JOptionPane.DEFAULT_OPTION,
+				JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+		// JOptionPane.showOptionDialog(frame, "Select a Difficulty", "Select an
+		// Option",
+		// JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+		// Options.get("Easy"));
 	}
 
 	public String calcTime(double seconds)
@@ -109,16 +123,85 @@ public class MathAppController extends JFrame
 		return result;
 	}
 
-	public void randomNums()
+	public void randomNums(String dif)
 	{
-		int min = 10, max = 100;
-		int range = max - min + 1;
-		double test1 = (Math.random() * range + min);
-		double test2 = (Math.random() * range + min);
+		int min1 = 0, max1, min2 = 0, max2;
+		int range1 = 0, range2 = 0;
+		double test1 = 0.0;
+		double test2 = 0.0;
+		boolean rand = false;
+		switch (dif) {
+		case "Easy":
+			min1 = 10;
+			min2 = 10;
+			max1 = 100;
+			max2 = 100;
+			range1 = max1 - min1 + 1;
+			range2 = max2 - min2 + 1;
+			break;
+		case "Medium":
+			min1 = 100;
+			min2 = 10;
+			max1 = 1000;
+			max2 = 100;
+			range1 = max1 - min1 + 1;
+			range2 = max2 - min2 + 1;
+			break;
+		case "Hard":
+			min1 = 100;
+			min2 = 100;
+			max1 = 1000;
+			max2 = 1000;
+			range1 = max1 - min1 + 1;
+			range2 = max2 - min2 + 1;
+			break;
+		case "Mixed":
+			min1 = 10;
+			max1 = 100;
+			min2 = 100;
+			max2 = 1000;
+			range1 = max1 - min1 + 1;
+			range2 = max2 - min2 + 1;
+			rand = true;
+			break;
+		}
+		double result1;
+		double result2;
+		if (rand)
+		{
+			Random r = new Random();
+			result1 = (r.nextInt(2) + 1);
+			if (result1 < 0)
+				result1 *= -1;
+			if ((int) result1 == 1)
+			{
+				test1 = (Math.random() * range1 + min1);
+			} else
+			{
+				test1 = (Math.random() * range2 + min2);
+			}
+
+			result2 = (r.nextInt(2) + 1);
+			if (result2 < 0)
+				result2 *= -1;
+			if ((int) result2 == 1)
+			{
+				test2 = (Math.random() * range1 + min1);
+			} else
+			{
+				test2 = (Math.random() * range2 + min2);
+			}
+		}
+		else
+		{
+			test1 = (Math.random() * range1 + min1);
+			test2 = (Math.random() * range2 + min2);
+		}
 		num1 = (int) (test1);
 		num2 = (int) (test2);
 		pblmNum++;
 		ProblemText.setText("Question " + pblmNum + ": " + num1 + " x " + num2);
+		
 	}
 
 	public class CheckData implements ActionListener
@@ -145,7 +228,7 @@ public class MathAppController extends JFrame
 						answerHere.setEnabled(true);
 						startBtn.setEnabled(false);
 						answerHere.requestFocus();
-						randomNums();
+						randomNums(options[difficulty]);
 						start = System.currentTimeMillis();
 					}
 				}
@@ -166,7 +249,7 @@ public class MathAppController extends JFrame
 						answerHere.setText("");
 						next.setEnabled(false);
 						answerHere.requestFocus();
-						
+
 					}
 				}
 				if (e.getActionCommand().equals("Next"))
@@ -176,7 +259,7 @@ public class MathAppController extends JFrame
 					submit.setBackground(null);
 					if (pblmNum < Questions)
 					{
-						randomNums();
+						randomNums(options[difficulty]);
 
 					} else
 					{
@@ -206,7 +289,7 @@ public class MathAppController extends JFrame
 								"password");
 						myStmt = myConn.createStatement();
 						myPrepStmt = myConn.prepareStatement(
-								"INSERT INTO Records(TimeTaken, DateSubmitted, Questions, avgTimePerQ)"
+								"INSERT INTO "+options[difficulty]+"Records(TimeTaken, DateSubmitted, Questions, avgTimePerQ)"
 										+ "VALUES( ? , now(), ? , ? );");
 						// assign the JTextField inputs to the placeholders
 						myPrepStmt.setString(1, calcTime(elapsedSeconds).toString());
@@ -230,14 +313,15 @@ public class MathAppController extends JFrame
 								myStmt.close();
 							if (myConn != null)
 								myConn.close();
+							next.setEnabled(false);
 						} catch (SQLException ex)
 						{
 							System.out.println("SQL Exception INSIDE finally block: " + ex.getMessage());
 							ex.printStackTrace();
-						} //catch
+						} // catch
 
-					} //try
-				} //Submit time
+					} // try
+				} // Submit time
 				if (e.getActionCommand().equals("Reset"))
 				{
 					numOfQs.setText("");
@@ -250,14 +334,18 @@ public class MathAppController extends JFrame
 					next.setLabel("Next");
 					Questions = 0;
 					pblmNum = 0;
+					choiceMethod();
+					view.updateViewDif(options[difficulty]);
+					
 					numOfQs.requestFocus();
+
 				}
 
-			} // if current Q is less than Max 
+			} // if current Q is less than Max
 
-		} //action preformed
+		} // action performed
 
-	} //check data
+	} // check data
 
 	public class GetRecord implements ActionListener
 	{
@@ -276,7 +364,8 @@ public class MathAppController extends JFrame
 							"jdbc:mySql://localhost:3306/mathapp?useSSL=false&allowPublicKeyRetrieval=true", "root",
 							"password");
 					myStmt = myConn.createStatement();
-					myPrepStmt = myConn.prepareStatement("select * from Records order by 4, 2, 5;");
+					
+					myPrepStmt = myConn.prepareStatement("select * from "+options[difficulty]+"Records order by 4, 2, 5;");
 					myRslt = myPrepStmt.executeQuery();
 
 					// call method in Dbutils and pass it to myrslt object
@@ -289,7 +378,7 @@ public class MathAppController extends JFrame
 					{
 						// create a View object and pass model to the view
 						// and catch the returned JFrame Object which holds the JTable
-						view = new MathAppView(model);
+						view = new MathAppView(model, options[difficulty]);
 						view.setVisible(true);
 					}
 
