@@ -35,9 +35,9 @@ public class MathAppView  extends JFrame
 		 table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		 
 		 TableColumnModel columnModel = table.getColumnModel();
-		 columnModel.getColumn(0).setPreferredWidth(5);
+		 columnModel.getColumn(0).setPreferredWidth(2);
 		 columnModel.getColumn(1).setPreferredWidth(15);
-		 columnModel.getColumn(3).setPreferredWidth(15);
+		 columnModel.getColumn(3).setPreferredWidth(20);
 		 JScrollPane scrollPane = new JScrollPane(table);
 		 this.add(scrollPane);
 	}
